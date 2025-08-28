@@ -122,4 +122,62 @@ def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_ts):
             url = args.url
             payload = None
             headers = {}
+
+            t0 = time.perf_counter()
+        ok = False
+        code = None
+        try:
+            if method == "GET":
+                resp = session.get(url, headers=headers)
+            elif method == "POST":
+                resp = session.post(url, data=payload if args.form else None,
+                                    json=None if args.form else payload, headers=header>
+            elif method == "PUT":
+                resp = session.put(url, data=payload if args.form else None,
+                                   json=None if args.form else payload, headers=headers)
+            else:
+                resp = session.request(method, url, headers=headers)
+            code = resp.status_code
+            ok = 200 <= resp.status_code < 500  # 5xx considered fail for server robust>
+        except requests.RequestException:
+            ok = False
+        latency = (time.perf_counter() - t0) * 1000.0
+        metrics.record(ok, latency, code)
+
+        # eye-candy pulse
+        if time.time() - last_log >= 1.0 and idx == 0:
+            total = metrics.success + metrics.fail
+            sys.stdout.write(
+                f"\r{Fore.YELLOW}🚀 Threads {args.threads} | Sent {total} | 2xx/3xx/4xx>
+                f"{sum(v for k,v in metrics.codes.items() if 200<=k<300)}/"
+                f"{sum(v for k,v in metrics.codes.items() if 300<=k<400)}/"
+                f"{sum(v for k,v in metrics.codes.items() if 400<=k<500)}/"
+                f"{sum(v for k,v in metrics.codes.items() if 500<=k<600)}"
+            )
+            sys.stdout.flush()
+            last_log = time.time()
+
+        if delay > 0:
+            # add tiny jitter so all threads don't align perfectly
+            time.sleep(delay * (0.8 + 0.4 * rng.random()))
+
+# --------- Percentiles / Report ---------
+def percentile(values: List[float], p: float) -> float:
+    if not values:
+        return float("nan")
+    v = sorted(values)
+    k = (len(v) - 1) * (p / 100.0)
+    f = int(k)
+    c = min(f + 1, len(v) - 1)                                                              if f == c:
+        return v[int(k)]
+    return v[f] + (v[c] - v[f]) * (k - f)
+
+def print_report(args, metrics: Metrics, start_ts, end_ts):
+    duration = max(0.001, end_ts - start_ts)
+    total = metrics.success + metrics.fail
+    rps = total / duration
+    p50 = percentile(metrics.latencies, 50)
+    p95 = percentile(metrics.latencies, 95)
+    p99 = percentile(metrics.latencies, 99)                                                 avg = statistics.mean(metrics.latencies) if metrics.latencies else float("nan")
+            
         
