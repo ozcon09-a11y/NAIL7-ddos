@@ -144,3 +144,20 @@ t0 = time.perf_counter()
             ok = 200 <= resp.status_code < 500  # 5xx considered fail for server robustness
         except requests.RequestException:
             ok = False
+        latency = (time.perf_counter() - t0) * 1000.0
+        metrics.record(ok, latency, code)
+
+        # eye-candy pulse
+        if time.time() - last_log >= 1.0 and idx == 0:
+            total = metrics.success + metrics.fail
+            sys.stdout.write(
+                f"\r{Fore.YELLOW}🚀 Threads {args.threads} | Sent {total} | 2xx/3xx/4xx/5xx: "
+                f"{sum(v for k,v in metrics.codes.items() if 200<=k<300)}/"
+                f"{sum(v for k,v in metrics.codes.items() if 300<=k<400)}/"
+                f"{sum(v for k,v in metrics.codes.items() if 400<=k<500)}/"
+                f"{sum(v for k,v in metrics.codes.items() if 500<=k<600)}"
+            )
+            sys.stdout.flush()
+            last_log = time.time()
+
+        if delay > 0:
