@@ -272,7 +272,7 @@ def main():
             sys.stdout.write(f"\r{Fore.YELLOW}{>
             sys.stdout.flush()
             time.sleep(0.08)
-print(f"\r{Fore.GREEN}🚀 Launch!{' ' * 20}")
+    print(f"\r{Fore.GREEN}🚀 Launch!{' ' * 20}")
 
     # wait for completion
     while time.time() < end_ts and not shutdown>
