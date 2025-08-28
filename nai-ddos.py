@@ -52,7 +52,7 @@ def print_banner():
     # cyberpunk boot animation
     for i, line in enumerate(CYBER_LINES):
         for _ in range(8):
-            frame = SPINNER_FRAMES[_ % len(SPIN>
+            frame = SPINNER_FRAMES[_ % len(SPINER_FRAMES)]
             sys.stdout.write(f"\r{Fore.CYAN}{frame} {line}")
             sys.stdout.flush()
             time.sleep(0.05)
