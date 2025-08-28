@@ -59,4 +59,17 @@ def print_banner():
         print(f"\r{Fore.GREEN}✔ {line}{' ' * 20>
     print("")
 
-        
+# ------------ Worker Logic --------------
+class Metrics:
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.latencies: List[float] = []
+        self.success = 0
+        self.fail = 0
+        self.codes: Dict[int, int] = {}
+                                                                                                                         def record(self, ok: bool, latency: float, code: int = None):
+        with self.lock:
+            if ok:
+                self.success += 1
+                self.latencies.append(latency)
+            else:
