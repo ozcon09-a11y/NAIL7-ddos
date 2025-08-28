@@ -272,4 +272,17 @@ def main():
             sys.stdout.write(f"\r{Fore.YELLOW}{>
             sys.stdout.flush()
             time.sleep(0.08)
-    print(f"\r{Fore.GREEN}🚀 Launch!{' ' * 20}")
+print(f"\r{Fore.GREEN}🚀 Launch!{' ' * 20}")
+
+    # wait for completion
+    while time.time() < end_ts and not shutdown>
+        time.sleep(0.2)
+    shutdown_flag.set()
+
+    for t in threads:
+        t.join(timeout=1)
+
+    print_report(args, metrics, start_ts, min(t>
+
+if __name__ == "__main__":
+    main()
