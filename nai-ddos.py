@@ -206,4 +206,36 @@ def percentile(values: List[float], p: float) ->
         for code in sorted(metrics.codes.keys()>
             print(f"  {code}: {metrics.codes[co>
     print(Fore.CYAN + Style.BRIGHT + "─" * 64)
-    
+    for code in sorted(metrics.codes.keys()>
+            print(f"  {code}: {metrics.codes[co>
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+
+# --------- Main ---------
+def sigint_handler(signum, frame):
+    shutdown_flag.set()
+    print(Fore.RED + "\n[!] Ctrl-C received, sh>
+
+def main():
+    parser = argparse.ArgumentParser(descriptio>
+    parser.add_argument("--url", required=True,>
+    parser.add_argument("--method", default="GE>
+    parser.add_argument("--threads", type=int, >
+    parser.add_argument("--rps", type=float, de>
+    parser.add_argument("--duration", type=int,>
+    parser.add_argument("--timeout", type=float>
+    parser.add_argument("--no-keepalive", actio>
+    parser.add_argument("--insecure", action="s>
+    parser.add_argument("--payload", help="JSON>
+    parser.add_argument("--form", action="store>
+    parser.add_argument("--header", action="app>
+    args = parser.parse_args()
+
+    print_banner()
+
+    # prepare job queue (optional mixed endpoin>
+    job_q = queue.Queue()
+    headers = {}
+    for h in args.header:
+        if ":" in h:
+            k, v = h.split(":", 1)
+            headers[k.strip()] = v.strip()
