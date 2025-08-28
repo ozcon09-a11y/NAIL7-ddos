@@ -117,7 +117,8 @@ def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_>
             delay = 1.0 / args.rps
         else:
             delay = 0.0
-            try:
+            
+        try:
             method, url, payload, headers = job_q.get_nowait()
         except queue.Empty:
             # recycle a default job if queue empty
