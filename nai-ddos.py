@@ -59,12 +59,6 @@ def print_banner():
         print(f"\r{Fore.GREEN}✔ {line}{' ' * 20>
     print("")
 
-# ------------ Worker Logic --------------
-sys.stdout.flush()
-            time.sleep(0.05)
-        print(f"\r{Fore.GREEN}✔ {line}{' ' * 20}")
-    print("")
-
 # --------- Worker Logic ---------
 class Metrics:
     def __init__(self):
