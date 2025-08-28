@@ -172,12 +172,3 @@ def percentile(values: List[float], p: float) -> float:
         return v[int(k)]
     return v[f] + (v[c] - v[f]) * (k - f)
 
-def print_report(args, metrics: Metrics, start_ts, end_ts):
-    duration = max(0.001, end_ts - start_ts)
-    total = metrics.success + metrics.fail
-    rps = total / duration
-    p50 = percentile(metrics.latencies, 50)
-    p95 = percentile(metrics.latencies, 95)
-    p99 = percentile(metrics.latencies, 99)                                                 avg = statistics.mean(metrics.latencies) if metrics.latencies else float("nan")
-            
-        
