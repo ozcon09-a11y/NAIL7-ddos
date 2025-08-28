@@ -279,3 +279,11 @@ shutdown_flag.set()
 
 for t in threads:
     t.join(timeout=1)
+
+for t in threads:
+        t.join(timeout=1)
+
+    print_report(args, metrics, start_ts, min(time.time(), end_ts))
+
+if __name__ == "__main__":
+    main()
