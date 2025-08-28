@@ -244,8 +244,21 @@ def main():
         import json
         try:
             payload = json.loads(args.payload)
-        except json.JSONDecodeError:
+         except json.JSONDecodeError:
             payload = args.payload
 
     # push a few starter jobs so workers don't block
     for _ in range(min(1000, args.threads * 10)):
+        job_q.put((args.method, args.url, payload, headers))
+
+    signal.signal(signal.SIGINT, sigint_handler)
+
+    metrics = Metrics()
+    start_ts = time.time() + 1.0  # 1s warmup before launch
+    end_ts = start_ts + args.duration
+
+    threads = []
+    for i in range(args.threads):
+        t = threading.Thread(target=worker, args=(i, args, job_q, metrics, start_ts, end_ts), daemon=True)
+        t.start()
+        threads.append(t)
