@@ -198,3 +198,21 @@ def print_report(args, metrics: Metrics, start_ts, end_ts):
     print(f"{Fore.GREEN}Success        : {metrics.success}")
     print(f"{Fore.RED}Failures       : {metrics.fail}")
     print(f"{Fore.YELLOW}Overall RPS    : {rps:.2f} req/s")
+    print("")
+    print(f"{Fore.CYAN}Latency (ms)   : avg={avg:.2f} | p50={p50:.2f} | p95={p95:.2f} | p99={p99:.2f}")
+    print("")
+    # status code breakdown
+    if metrics.codes:
+        print(Fore.WHITE + Style.DIM + "Status codes:")
+        for code in sorted(metrics.codes.keys()):
+            print(f"  {code}: {metrics.codes[code]}")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+
+# --------- Main ---------
+def sigint_handler(signum, frame):
+    shutdown_flag.set()
+    print(Fore.RED + "\n[!] Ctrl-C received, shutting down...")
+
+def main():
+    parser = argparse.ArgumentParser(description="NAI HTTP Load Tester (no raw sockets)")
+    parser.add_argument("--url", required=True, help="Target URL (e.g., https://example.com/)")
