@@ -146,3 +146,31 @@ def worker(idx, args, job_q: queue.Queue, metri>
             ok = False
         latency = (time.perf_counter() - t0) * >
         metrics.record(ok, latency, code)
+        # eye-candy pulse
+        if time.time() - last_log >= 1.0 and id>
+            total = metrics.success + metrics.f>
+            sys.stdout.write(
+                f"\r{Fore.YELLOW}🚀 Threads {ar>
+                f"{sum(v for k,v in metrics.cod>
+                f"{sum(v for k,v in metrics.cod>
+                f"{sum(v for k,v in metrics.cod>
+                f"{sum(v for k,v in metrics.cod>
+            )
+            sys.stdout.flush()
+            last_log = time.time()
+
+        if delay > 0:
+            # add tiny jitter so all threads do>
+            time.sleep(delay * (0.8 + 0.4 * rng>
+
+# --------- Percentiles / Report ---------
+def percentile(values: List[float], p: float) ->
+    if not values:
+        return float("nan")
+    v = sorted(values)
+    k = (len(v) - 1) * (p / 100.0)
+    f = int(k)
+    c = min(f + 1, len(v) - 1)
+    if f == c:
+        return v[int(k)]
+    return v[f] + (v[c] - v[f]) * (k - f)
