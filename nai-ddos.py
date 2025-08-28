@@ -239,3 +239,37 @@ def main():
         if ":" in h:
             k, v = h.split(":", 1)
             headers[k.strip()] = v.strip()
+
+    payload = None
+    if args.payload:
+        # rough parse: try JSON then fall back >
+        import json
+        try:
+            payload = json.loads(args.payload)
+        except json.JSONDecodeError:
+            payload = args.payload
+
+    # push a few starter jobs so workers don't >
+    for _ in range(min(1000, args.threads * 10)>
+        job_q.put((args.method, args.url, paylo>
+
+    signal.signal(signal.SIGINT, sigint_handler)
+
+    metrics = Metrics()
+    start_ts = time.time() + 1.0  # 1s warmup b>
+    end_ts = start_ts + args.duration
+
+    threads = []
+    for i in range(args.threads):
+        t = threading.Thread(target=worker, arg>
+        t.start()
+        threads.append(t)
+
+    # countdown with flashy spinner
+    print(Fore.YELLOW + Style.BRIGHT + "Arming >
+    for s in range(3, 0, -1):
+        for frame in SPINNER_FRAMES:
+            sys.stdout.write(f"\r{Fore.YELLOW}{>
+            sys.stdout.flush()
+            time.sleep(0.08)
+    print(f"\r{Fore.GREEN}🚀 Launch!{' ' * 20}")
