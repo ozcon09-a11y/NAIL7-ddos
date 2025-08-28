@@ -262,3 +262,20 @@ def main():
         t = threading.Thread(target=worker, args=(i, args, job_q, metrics, start_ts, end_ts), daemon=True)
         t.start()
         threads.append(t)
+
+# countdown with flashy spinner
+print(Fore.YELLOW + Style.BRIGHT + "Arming in: ", end="", flush=True)
+for s in range(3, 0, -1):
+    for frame in SPINNER_FRAMES:
+            sys.stdout.write(f"\r{Fore.YELLOW}{frame} Launch in {s}…")
+            sys.stdout.flush()
+            time.sleep(0.08)
+print(f"\r{Fore.GREEN}🚀 Launch!{' ' * 20}")
+
+# wait for completion
+while time.time() < end_ts and not shutdown_flag.is_set():
+    time.sleep(0.2)
+shutdown_flag.set()
+
+for t in threads:
+    t.join(timeout=1)
