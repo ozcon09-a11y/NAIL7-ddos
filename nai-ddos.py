@@ -55,5 +55,71 @@ def print_banner():
             sys.stdout.flush()
             time.sleep(0.05)
         print(f"\r{Fore.GREEN}✔ {line}{' ' * 20}")
-    print("")        
+    print("") 
+
+# --------- Worker Logic ---------
+class Metrics:
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.latencies: List[float] = []
+        self.success = 0
+        self.fail = 0
+        self.codes: Dict[int, int] = {}
+
+    def record(self, ok: bool, latency: float, code: int = None):
+        with self.lock:
+            if ok:
+                self.success += 1
+                self.latencies.append(latency)
+            else:
+                self.fail += 1
+            if code is not None:
+                self.codes[code] = self.codes.get(code, 0) + 1
+
+def build_session(timeout, keepalive=True, verify_tls=True):
+    s = requests.Session()
+    # robust adapter with connection pool
+    retries = Retry(total=0, backoff_factor=0)
+    adapter = HTTPAdapter(
+        max_retries=retries,
+        pool_connections=100,
+        pool_maxsize=1000
+    )
+    s.mount("http://", adapter)
+    s.mount("https://", adapter)                                                            s.headers.update({
+        "User-Agent": "NAI-LoadTester/1.0",
+        "Connection": "keep-alive" if keepalive else "close"
+    })
+    s.verify = verify_tls
+    s.timeout = timeout
+    return s
+
+def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_ts):
+    session = build_session(timeout=args.timeout, keepalive=not args.no_keepalive, veri>
+    rng = random.Random(idx ^ int(time.time()))                                             # simple log pulse each second
+    last_log = time.time()
+
+    while not shutdown_flag.is_set():
+        now = time.time()
+        if now < start_ts:
+            time.sleep(min(0.01, start_ts - now))
+            continue
+        if now >= end_ts:
+            break
+
+        # rate limiting per thread
+        if args.rps > 0:
+            # spread requests evenly within second
+            delay = 1.0 / args.rps
+        else:
+            delay = 0.0
+
+        try:
+            method, url, payload, headers = job_q.get_nowait()
+        except queue.Empty:
+            # recycle a default job if queue empty
+            method = args.method
+            url = args.url
+            payload = None
+            headers = {}
         
