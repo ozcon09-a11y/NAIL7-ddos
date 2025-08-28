@@ -164,3 +164,52 @@ def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_>
         if delay > 0:
             # add tiny jitter so all threads don't align perfectly
             time.sleep(delay * (0.8 + 0.4 * rng.random()))
+
+# --------- Percentiles / Report ---------
+def percentile(values: List[float], p: float) -> float:
+    if not values:
+        return float("nan")
+    v = sorted(values)
+    k = (len(v) - 1) * (p / 100.0)
+    f = int(k)
+    c = min(f + 1, len(v) - 1)
+    if f == c:
+        return v[int(k)]
+    return v[f] + (v[c] - v[f]) * (k - f)
+
+def print_report(args, metrics: Metrics, start_ts, end_ts):
+    duration = max(0.001, end_ts - start_ts)
+    total = metrics.success + metrics.fail
+    rps = total / duration
+    p50 = percentile(metrics.latencies, 50)
+    p95 = percentile(metrics.latencies, 95)
+    p99 = percentile(metrics.latencies, 99)
+    avg = statistics.mean(metrics.latencies) if metrics.latencies else flo>
+
+    print("\n")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(Fore.CYAN + Style.BRIGHT + " NAI DDoS Report")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(f"{Fore.MAGENTA}Target    : {args.url}")
+    print(f"{Fore.MAGENTA}Method    : {args.method} | Threads: {args.threa>
+    print(f"{Fore.MAGENTA}Duration  : {args.duration}s | Keep-Alive: {str(>
+    print(f"{Fore.MAGENTA}Timeline  : {datetime.fromtimestamp(start_ts)} →>
+    print("")
+    print(f"{Fore.GREEN}Total Requests : {total}")
+    print(f"{Fore.GREEN}Success        : {metrics.success}")
+    print(f"{Fore.RED}Failures       : {metrics.fail}")
+    print(f"{Fore.YELLOW}Overall RPS    : {rps:.2f} req/s")
+    print("")
+    print(f"{Fore.CYAN}Latency (ms)   : avg={avg:.2f} | p50={p50:.2f} | p9>
+    print("")
+    # status code breakdown
+    if metrics.codes:
+        print(Fore.WHITE + Style.DIM + "Status codes:")
+        for code in sorted(metrics.codes.keys()):
+            print(f"  {code}: {metrics.codes[code]}")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+
+# --------- Main ---------
+def sigint_handler(signum, frame):
+    shutdown_flag.set()
+    print(Fore.RED + "\n[!] Ctrl-C received, shutting down...")
