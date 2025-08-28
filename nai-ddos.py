@@ -67,7 +67,7 @@ class Metrics:
         self.success = 0
         self.fail = 0
         self.codes: Dict[int, int] = {}
-                                                                                                                         def record(self, ok: bool, latency: float, code: int = None):
+     def record(self, ok: bool, latency: float, code: int = None):
         with self.lock:
             if ok:
                 self.success += 1
