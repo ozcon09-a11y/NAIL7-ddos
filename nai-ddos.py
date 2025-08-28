@@ -89,3 +89,21 @@ def build_session(timeout, keepalive=True, verify_tls=True):
     s.mount("http://", adapter)
     s.mount("https://", adapter)
     s.headers.update({
+        "User-Agent": "NAI-LoadTester/1.0",
+        "Connection": "keep-alive" if keepalive else "close"
+    })
+    s.verify = verify_tls
+    s.timeout = timeout
+    return s
+
+def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_ts):
+    session = build_session(timeout=args.timeout, keepalive=not args.no_keepalive, verify_tls=not args.insecure)
+    rng = random.Random(idx ^ int(time.time()))
+    # simple log pulse each second
+    last_log = time.time()
+
+    while not shutdown_flag.is_set():
+        now = time.time()
+        if now < start_ts:
+            time.sleep(min(0.01, start_ts - now))
+            continue
