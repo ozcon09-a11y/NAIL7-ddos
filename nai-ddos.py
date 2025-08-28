@@ -107,3 +107,21 @@ def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_ts):
         if now < start_ts:
             time.sleep(min(0.01, start_ts - now))
             continue
+        if now >= end_ts:
+            break
+
+        # rate limiting per thread
+        if args.rps > 0:
+            # spread requests evenly within second
+            delay = 1.0 / args.rps
+        else:
+            delay = 0.0
+
+        try:
+            method, url, payload, headers = job_q.get_nowait()
+        except queue.Empty:
+            # recycle a default job if queue empty
+            method = args.method
+            url = args.url
+            payload = None
+            headers = {}
