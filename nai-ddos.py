@@ -60,6 +60,12 @@ def print_banner():
     print("")
 
 # ------------ Worker Logic --------------
+sys.stdout.flush()
+            time.sleep(0.05)
+        print(f"\r{Fore.GREEN}✔ {line}{' ' * 20}")
+    print("")
+
+# --------- Worker Logic ---------
 class Metrics:
     def __init__(self):
         self.lock = threading.Lock()
@@ -67,12 +73,11 @@ class Metrics:
         self.success = 0
         self.fail = 0
         self.codes: Dict[int, int] = {}
+
     def record(self, ok: bool, latency: float, code: int = None):
         with self.lock:
             if ok:
                 self.success += 1
-                self.latencies.append(latency)
-            else:
                 self.fail += 1
             if code is not None:
                 self.codes[code] = self.codes.get(code, 0) + 1
