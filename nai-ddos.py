@@ -110,3 +110,39 @@ def worker(idx, args, job_q: queue.Queue, metri>
             continue
         if now >= end_ts:
             break
+         # rate limiting per thread
+        if args.rps > 0:
+            # spread requests evenly within sec>
+            delay = 1.0 / args.rps
+        else:
+            delay = 0.0
+
+        try:
+            method, url, payload, headers = job>
+        except queue.Empty:
+            # recycle a default job if queue em>
+            method = args.method
+            url = args.url
+            payload = None
+            headers = {}
+
+        t0 = time.perf_counter()
+        ok = False
+        code = None
+        try:
+            if method == "GET":
+                resp = session.get(url, headers>
+            elif method == "POST":
+                resp = session.post(url, data=p>
+                                    json=None i>
+            elif method == "PUT":
+                resp = session.put(url, data=pa>
+                                   json=None if>
+            else:
+                resp = session.request(method, >
+            code = resp.status_code
+            ok = 200 <= resp.status_code < 500 >
+        except requests.RequestException:
+            ok = False
+        latency = (time.perf_counter() - t0) * >
+        metrics.record(ok, latency, code)
