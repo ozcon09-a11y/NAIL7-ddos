@@ -43,7 +43,7 @@ CYBER_LINES = [
     "Ready to launch 🚀"
 ]
 
-SPINNER_FRAMES = ["⣾","⣽","⣻","⢿","⡿","⣟","⣯",">
+SPINNER_FRAMES = ["⣾","⣽","⣻","⢿","⡿","⣟","⣯","⣷"]
 
 shutdown_flag = threading.Event()
 
