@@ -74,4 +74,39 @@ class Metrics:
                 self.success += 1
                 self.latencies.append(latency)
             else:
-                
+                self.fail += 1
+            if code is not None:
+                self.codes[code] = self.codes.g>
+
+def build_session(timeout, keepalive=True, veri>
+    s = requests.Session()
+    # robust adapter with connection pool
+    retries = Retry(total=0, backoff_factor=0)
+    adapter = HTTPAdapter(
+        max_retries=retries,
+        pool_connections=100,
+        pool_maxsize=1000
+    )
+    s.mount("http://", adapter)
+    s.mount("https://", adapter)
+    s.headers.update({
+        "User-Agent": "NAI-LoadTester/1.0",
+        "Connection": "keep-alive" if keepalive>
+    })
+    s.verify = verify_tls
+    s.timeout = timeout
+    return s
+
+def worker(idx, args, job_q: queue.Queue, metri>
+    session = build_session(timeout=args.timeou>
+    rng = random.Random(idx ^ int(time.time()))
+    # simple log pulse each second
+    last_log = time.time()
+
+    while not shutdown_flag.is_set():
+        now = time.time()
+        if now < start_ts:
+            time.sleep(min(0.01, start_ts - now>
+            continue
+        if now >= end_ts:
+            break
