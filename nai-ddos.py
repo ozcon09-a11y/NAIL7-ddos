@@ -212,7 +212,20 @@ def print_report(args, metrics: Metrics, start_ts, end_ts):
 def sigint_handler(signum, frame):
     shutdown_flag.set()
     print(Fore.RED + "\n[!] Ctrl-C received, shutting down...")
-
+/
 def main():
     parser = argparse.ArgumentParser(description="NAI HTTP Load Tester (no raw sockets)")
     parser.add_argument("--url", required=True, help="Target URL (e.g., https://example.com/)")
+    parser.add_argument("--method", default="GET", choices=["GET", "POST", "PUT"], help="HTTP method")
+    parser.add_argument("--threads", type=int, default=100, help="Number of worker threads")
+    parser.add_argument("--rps", type=float, default=0, help="Target requests per second per thread (0 = unlimited)")
+    parser.add_argument("--duration", type=int, default=30, help="Test duration in seconds")
+    parser.add_argument("--timeout", type=float, default=10, help="HTTP timeout seconds")
+    parser.add_argument("--no-keepalive", action="store_true", help="Disable HTTP keep-alive")
+    parser.add_argument("--insecure", action="store_true", help="Skip TLS verification")
+    parser.add_argument("--payload", help="JSON string or form payload for POST/PUT")
+    parser.add_argument("--form", action="store_true", help="Send payload as application/x-www-form-urlencoded")
+    parser.add_argument("--header", action="append", default=[], help="Custom header, e.g. 'Key: Value'")
+    args = parser.parse_args()
+
+    print_banner()
