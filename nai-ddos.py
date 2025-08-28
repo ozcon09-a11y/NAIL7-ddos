@@ -172,3 +172,56 @@ def percentile(values: List[float], p: float) -> float:
         return v[int(k)]
     return v[f] + (v[c] - v[f]) * (k - f)
 
+    def print_report(args, metrics: Metrics, start_ts, end_ts):
+    duration = max(0.001, end_ts - start_ts)
+    total = metrics.success + metrics.fail
+    rps = total / duration
+    p50 = percentile(metrics.latencies, 50)
+    p95 = percentile(metrics.latencies, 95)
+    p99 = percentile(metrics.latencies, 99)                                                 avg = statistics.mean(metrics.latencies) if metrics.latencies else float("nan")
+
+    print("\n")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(Fore.CYAN + Style.BRIGHT + " NAI DDoS Report")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(f"{Fore.MAGENTA}Target    : {args.url}")
+    print(f"{Fore.MAGENTA}Method    : {args.method} | Threads: {args.threads} | RPS/thr>
+    print(f"{Fore.MAGENTA}Duration  : {args.duration}s | Keep-Alive: {str(not args.no_k>
+    print(f"{Fore.MAGENTA}Timeline  : {datetime.fromtimestamp(start_ts)} → {datetime.fr>
+    print("")
+    print(f"{Fore.GREEN}Total Requests : {total}")
+    print(f"{Fore.GREEN}Success        : {metrics.success}")
+    print(f"{Fore.RED}Failures       : {metrics.fail}")
+    print(f"{Fore.YELLOW}Overall RPS    : {rps:.2f} req/s")
+    print("")
+    print(f"{Fore.CYAN}Latency (ms)   : avg={avg:.2f} | p50={p50:.2f} | p95={p95:.2f} |>
+    print("")
+    # status code breakdown
+    if metrics.codes:
+        print(Fore.WHITE + Style.DIM + "Status codes:")
+        for code in sorted(metrics.codes.keys()):
+            print(f"  {code}: {metrics.codes[code]}")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+
+# --------- Main ---------
+def sigint_handler(signum, frame):
+    shutdown_flag.set()
+    print(Fore.RED + "\n[!] Ctrl-C received, shutting down...")
+
+def main():
+    parser = argparse.ArgumentParser(description="NAI HTTP Load Tester (no raw sockets)>
+    parser.add_argument("--url", required=True, help="Target URL (e.g., https://example>
+    parser.add_argument("--method", default="GET", choices=["GET", "POST", "PUT"], help>
+    parser.add_argument("--threads", type=int, default=100, help="Number of worker thre>
+    parser.add_argument("--rps", type=float, default=0, help="Target requests per secon>
+    parser.add_argument("--duration", type=int, default=30, help="Test duration in seco>
+    parser.add_argument("--timeout", type=float, default=10, help="HTTP timeout seconds>
+    parser.add_argument("--no-keepalive", action="store_true", help="Disable HTTP keep->
+    parser.add_argument("--insecure", action="store_true", help="Skip TLS verification")
+    parser.add_argument("--payload", help="JSON string or form payload for POST/PUT")
+    parser.add_argument("--form", action="store_true", help="Send payload as applicatio>
+    parser.add_argument("--header", action="append", default=[], help="Custom header, e>
+    args = parser.parse_args()
+
+    print_banner()
+
