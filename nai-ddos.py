@@ -174,3 +174,36 @@ def percentile(values: List[float], p: float) ->
     if f == c:
         return v[int(k)]
     return v[f] + (v[c] - v[f]) * (k - f)
+
+    def print_report(args, metrics: Metrics, start_>
+    duration = max(0.001, end_ts - start_ts)
+    total = metrics.success + metrics.fail
+    rps = total / duration
+    p50 = percentile(metrics.latencies, 50)
+    p95 = percentile(metrics.latencies, 95)
+    p99 = percentile(metrics.latencies, 99)
+    avg = statistics.mean(metrics.latencies) if>
+
+    print("\n")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(Fore.CYAN + Style.BRIGHT + " NAI DDoS>
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(f"{Fore.MAGENTA}Target    : {args.url>
+    print(f"{Fore.MAGENTA}Method    : {args.met>
+    print(f"{Fore.MAGENTA}Duration  : {args.dur>
+    print(f"{Fore.MAGENTA}Timeline  : {datetime>
+    print("")
+    print(f"{Fore.GREEN}Total Requests : {total>
+    print(f"{Fore.GREEN}Success        : {metri>
+    print(f"{Fore.RED}Failures       : {metrics>
+    print(f"{Fore.YELLOW}Overall RPS    : {rps:>
+    print("")
+    print(f"{Fore.CYAN}Latency (ms)   : avg={av>
+    print("")
+    # status code breakdown
+    if metrics.codes:
+        print(Fore.WHITE + Style.DIM + "Status >
+        for code in sorted(metrics.codes.keys()>
+            print(f"  {code}: {metrics.codes[co>
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    
