@@ -161,3 +161,21 @@ t0 = time.perf_counter()
             last_log = time.time()
 
         if delay > 0:
+            # add tiny jitter so all threads don't align perfectly
+            time.sleep(delay * (0.8 + 0.4 * rng.random()))
+
+# --------- Percentiles / Report ---------
+def percentile(values: List[float], p: float) -> float:
+    if not values:
+        return float("nan")
+    v = sorted(values)
+    k = (len(v) - 1) * (p / 100.0)
+    f = int(k)
+    c = min(f + 1, len(v) - 1)
+    if f == c:
+        return v[int(k)]
+    return v[f] + (v[c] - v[f]) * (k - f)
+
+def print_report(args, metrics: Metrics, start_ts, end_ts):
+    duration = max(0.001, end_ts - start_ts)
+    total = metrics.success + metrics.fail
