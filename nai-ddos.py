@@ -73,3 +73,19 @@ class Metrics:
                 self.success += 1
                 self.latencies.append(latency)
             else:
+                self.fail += 1
+            if code is not None:
+                self.codes[code] = self.codes.get(code, 0) + 1
+
+def build_session(timeout, keepalive=True, verify_tls=True):
+    s = requests.Session()
+    # robust adapter with connection pool
+    retries = Retry(total=0, backoff_factor=0)
+    adapter = HTTPAdapter(
+        max_retries=retries,
+        pool_connections=100,
+        pool_maxsize=1000
+    )
+    s.mount("http://", adapter)
+    s.mount("https://", adapter)
+    s.headers.update({
