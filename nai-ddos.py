@@ -53,7 +53,7 @@ def print_banner():
     for i, line in enumerate(CYBER_LINES):
         for _ in range(8):
             frame = SPINNER_FRAMES[_ % len(SPIN>
-            sys.stdout.write(f"\r{Fore.CYAN}{fr>
+            sys.stdout.write(f"\r{Fore.CYAN}{frame} {line}")
             sys.stdout.flush()
             time.sleep(0.05)
         print(f"\r{Fore.GREEN}✔ {line}{' ' * 20>
