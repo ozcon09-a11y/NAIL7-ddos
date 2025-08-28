@@ -229,3 +229,23 @@ def main():
     args = parser.parse_args()
 
     print_banner()
+    
+    # prepare job queue (optional mixed endpoints)
+    job_q = queue.Queue()
+    headers = {}
+    for h in args.header:
+        if ":" in h:
+            k, v = h.split(":", 1)
+            headers[k.strip()] = v.strip()
+
+    payload = None
+    if args.payload:
+        # rough parse: try JSON then fall back to raw string
+        import json
+        try:
+            payload = json.loads(args.payload)
+        except json.JSONDecodeError:
+            payload = args.payload
+
+    # push a few starter jobs so workers don't block
+    for _ in range(min(1000, args.threads * 10)):
