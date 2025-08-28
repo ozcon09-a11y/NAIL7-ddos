@@ -179,3 +179,22 @@ def percentile(values: List[float], p: float) -> float:
 def print_report(args, metrics: Metrics, start_ts, end_ts):
     duration = max(0.001, end_ts - start_ts)
     total = metrics.success + metrics.fail
+    rps = total / duration
+    p50 = percentile(metrics.latencies, 50)
+    p95 = percentile(metrics.latencies, 95)
+    p99 = percentile(metrics.latencies, 99)
+    avg = statistics.mean(metrics.latencies) if metrics.latencies else float("nan")
+
+    print("\n")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(Fore.CYAN + Style.BRIGHT + " NAI DDoS Report")
+    print(Fore.CYAN + Style.BRIGHT + "─" * 64)
+    print(f"{Fore.MAGENTA}Target    : {args.url}")
+    print(f"{Fore.MAGENTA}Method    : {args.method} | Threads: {args.threads} | RPS/thread: {args.rps or 'unlimited'}")
+    print(f"{Fore.MAGENTA}Duration  : {args.duration}s | Keep-Alive: {str(not args.no_keepalive)}")
+    print(f"{Fore.MAGENTA}Timeline  : {datetime.fromtimestamp(start_ts)} → {datetime.fromtimestamp(end_ts)}")
+    print("")
+    print(f"{Fore.GREEN}Total Requests : {total}")
+    print(f"{Fore.GREEN}Success        : {metrics.success}")
+    print(f"{Fore.RED}Failures       : {metrics.fail}")
+    print(f"{Fore.YELLOW}Overall RPS    : {rps:.2f} req/s")
