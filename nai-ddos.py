@@ -125,3 +125,22 @@ def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_ts):
             url = args.url
             payload = None
             headers = {}
+
+t0 = time.perf_counter()
+        ok = False
+        code = None
+        try:
+            if method == "GET":
+                resp = session.get(url, headers=headers)
+            elif method == "POST":
+                resp = session.post(url, data=payload if args.form else None,
+                                    json=None if args.form else payload, headers=headers)
+            elif method == "PUT":
+                resp = session.put(url, data=payload if args.form else None,
+                                   json=None if args.form else payload, headers=headers)
+            else:
+                resp = session.request(method, url, headers=headers)
+            code = resp.status_code
+            ok = 200 <= resp.status_code < 500  # 5xx considered fail for server robustness
+        except requests.RequestException:
+            ok = False
