@@ -13,9 +13,9 @@ try:
     import requests
     from requests.adapters import HTTPAdapter
     from urllib3.util.retry import Retry
-    from colorama import Fore, Style, init as c>
+    from colorama import Fore, Style, init as colorama_init
 except ImportError:
-    print("Missing deps. Install: pip install r>
+    print("Missing deps. Install: pip install requests colorama")
     sys.exit(1)
 
 # --------- UI / Banner ---------
