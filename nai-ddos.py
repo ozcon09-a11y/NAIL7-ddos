@@ -37,7 +37,7 @@ BANNER = r"""
 
 CYBER_LINES = [
     "Booting NAI engine...",
-     "Spinning up threads...",
+    "Spinning up threads...",
     "Priming HTTP sessions...",
     "Arming observability...",
     "Ready to launch 🚀"
@@ -72,6 +72,8 @@ class Metrics:
         with self.lock:
             if ok:
                 self.success += 1
+                self.latencies.append(latency)
+            else:
                 self.fail += 1
             if code is not None:
                 self.codes[code] = self.codes.get(code, 0) + 1
