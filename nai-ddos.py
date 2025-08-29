@@ -127,7 +127,7 @@ def worker(idx, args, job_q: queue.Queue, metrics: Metrics, start_ts, end_ts):
             payload = None
             headers = {}
 
-t0 = time.perf_counter()
+        t0 = time.perf_counter()
         ok = False
         code = None
         try:
