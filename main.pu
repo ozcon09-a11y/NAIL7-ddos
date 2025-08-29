@@ -245,7 +245,7 @@ def main():
         import json
         try:
             payload = json.loads(args.payload)
-         except json.JSONDecodeError:
+        except json.JSONDecodeError:
             payload = args.payload
 
     # push a few starter jobs so workers don't block
