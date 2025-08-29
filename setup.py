@@ -12,7 +12,6 @@ if c == "0":
     os.system("pip install pysocks")
     os.system("pip install colorama")
     os.system("pip install httpx")
-    os.system("git pull")
 
 elif c == "1":
     os.system("apt-get install python")
@@ -23,6 +22,5 @@ elif c == "1":
     os.system("pip3 install pysocks")
     os.system("pip3 install colorama")
     os.system("pip3 install httpx")
-    os.system("git pull")
    
 print("Done.")
