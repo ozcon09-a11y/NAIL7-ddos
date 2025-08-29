@@ -60,7 +60,7 @@ def print_banner():
     print("")
 
 # --------- Worker Logic ---------
-print(f{class} Metrics:
+class} Metrics:
     def __init__(self):
         self.lock = threading.Lock()
         self.latencies: List[float] = []
