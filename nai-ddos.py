@@ -212,7 +212,8 @@ def print_report(args, metrics: Metrics, start_ts, end_ts):
 # --------- Main ---------
 def sigint_handler(signum, frame):
     shutdown_flag.set()
-    print(Fore.RED + "\n[!] Ctrl-C received, shutting down...")/
+    print(Fore.RED + "\n[!] Ctrl-C received, shutting down...")
+    
 def main():
     parser = argparse.ArgumentParser(description="NAI HTTP Load Tester (no raw sockets)")
     parser.add_argument("--url", required=True, help="Target URL (e.g., https://example.com/)")
